@@ -1,28 +1,46 @@
 import sys
+import os
 
-
+def get_cmd_path(args: str):
+    dirs = os.environ["PATH"].split(":")
+    for dir in dirs:
+        try:
+            files = os.listdir(dir)
+        except FileNotFoundError:
+            continue
+        for file in files:
+            if file == args:
+                return f"{dir}/{file}"
+    return None
+    
 def main():
     # Wait for user input
     while True:
         sys.stdout.write("$ ")
         command = input()
-        if command.startswith("exit "):
+        
+        cmd, args = command.split()[0], ' '.join(command.split()[1:])
+        
+        if cmd == "exit":
             sys.exit(0)
             
-        elif command.startswith("echo "):
-            args = ' '.join(command.split()[1:])
+        elif cmd == "echo":
             sys.stdout.write(f"{args}\n")
             
-        elif command.startswith("type "):
-            arg = command.split()[1]
+        elif cmd == "type":
+            if args in ["echo", "exit", "type"]:
+                sys.stdout.write(f"{args} is a shell builtin\n")
+                continue
             
-            if arg in ["echo", "exit", "type"]:
-                sys.stdout.write(f"{arg} is a shell builtin\n")
+            path = get_cmd_path(args)
+            if path:
+                sys.stdout.write(f"{args} is {path}\n")
             else:
-                sys.stdout.write(f"{arg}: not found\n")    
+                sys.stdout.write(f"{args}: not found\n")
                 
         else:
             sys.stdout.write(f"{command}: command not found\n")
+            
 
 
 if __name__ == "__main__":
