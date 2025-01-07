@@ -1,16 +1,12 @@
 import sys
 import os
+import subprocess
 
 def get_cmd_path(args: str):
     dirs = os.environ["PATH"].split(":")
     for dir in dirs:
-        try:
-            files = os.listdir(dir)
-        except FileNotFoundError:
-            continue
-        for file in files:
-            if file == args:
-                return f"{dir}/{file}"
+        if os.path.isfile(f"{dir}/{args}"):
+            return f"{dir}/{args}"
     return None
     
 def main():
@@ -39,7 +35,11 @@ def main():
                 sys.stdout.write(f"{args}: not found\n")
                 
         else:
-            sys.stdout.write(f"{command}: command not found\n")
+            path = get_cmd_path(cmd)
+            if path:
+                subprocess.run([path] + args.split())
+            else:
+                sys.stdout.write(f"{command}: command not found\n")
             
 
 
