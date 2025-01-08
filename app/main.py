@@ -25,9 +25,15 @@ def main():
             
         elif cmd == "pwd":
             sys.stdout.write(f"{os.getcwd()}\n")
+        
+        elif cmd == "cd":
+            if os.path.exists(args):
+                os.chdir(args)
+            else:
+                sys.stdout.write(f"cd: {args}: No such file or directory\n")
             
         elif cmd == "type":
-            if args in ["echo", "exit", "type", "pwd"]:
+            if args in ["echo", "exit", "type", "pwd", "cd"]:
                 sys.stdout.write(f"{args} is a shell builtin\n")
                 continue
             
