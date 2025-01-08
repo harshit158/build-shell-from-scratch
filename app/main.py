@@ -23,8 +23,11 @@ def main():
         elif cmd == "echo":
             sys.stdout.write(f"{args}\n")
             
+        elif cmd == "pwd":
+            sys.stdout.write(f"{os.getcwd()}\n")
+            
         elif cmd == "type":
-            if args in ["echo", "exit", "type"]:
+            if args in ["echo", "exit", "type", "pwd"]:
                 sys.stdout.write(f"{args} is a shell builtin\n")
                 continue
             
