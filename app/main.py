@@ -8,11 +8,24 @@ def get_cmd_path(args: str):
         if os.path.isfile(f"{dir}/{args}"):
             return f"{dir}/{args}"
     return None
+
+def resolve_path(target: list[str]):
+    ans = []
+    for cmd in target:
+        if cmd == "~":
+            ans.extend(os.environ["HOME"].split("/"))
+        elif cmd == ".":
+            continue
+        elif cmd == "..":
+            ans = ans[:-1]
+    
+    return "/".join(ans)
     
 def main():
     # Wait for user input
     while True:
         sys.stdout.write("$ ")
+        sys.stdout.flush()
         command = input()
         
         cmd, args = command.split()[0], ' '.join(command.split()[1:])
@@ -27,9 +40,19 @@ def main():
             sys.stdout.write(f"{os.getcwd()}\n")
         
         elif cmd == "cd":
-            if os.path.exists(args):
-                os.chdir(args)
-            else:
+            try:
+                if args.startswith("/"):
+                    target = args
+                elif args.startswith("~"):
+                    target = os.environ["HOME"] + args[1:]
+                    target = os.path.normpath(target)
+                elif args.startswith("."):
+                    target = os.path.join(os.getcwd(), args)
+                    target = os.path.normpath(target)
+                else:
+                    target = None
+                os.chdir(target)
+            except FileNotFoundError:
                 sys.stdout.write(f"cd: {args}: No such file or directory\n")
             
         elif cmd == "type":
@@ -46,9 +69,11 @@ def main():
         else:
             path = get_cmd_path(cmd)
             if path:
-                subprocess.run([path] + args.split())
+                subprocess.run([cmd] + args.split())
             else:
                 sys.stdout.write(f"{command}: command not found\n")
+        
+        sys.stdout.flush()
             
 
 
