@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import shlex
 
 def get_cmd_path(args: str):
     dirs = os.environ["PATH"].split(":")
@@ -20,6 +21,28 @@ def resolve_path(target: list[str]):
             ans = ans[:-1]
     
     return "/".join(ans)
+
+def extract_literal_chars(string: str):
+    start = False
+    res = ''
+    for s in string:
+        if s == "'":
+            start = True if not start else False
+            continue
+        if start:
+            res += s
+        else:
+            ...
+    return res
+
+def _get_parts(args):
+    parts = shlex.split(args)
+    return parts
+
+def handle_echo(args):
+    args = args[5:]
+    parts = shlex.split(args)
+    return " ".join(parts)
     
 def main():
     # Wait for user input
@@ -33,8 +56,9 @@ def main():
         if cmd == "exit":
             sys.exit(0)
             
-        elif cmd == "echo":
-            sys.stdout.write(f"{args}\n")
+        elif command.startswith("echo "):
+            output = handle_echo(command)
+            sys.stdout.write(f"{output}\n")
             
         elif cmd == "pwd":
             sys.stdout.write(f"{os.getcwd()}\n")
@@ -67,9 +91,10 @@ def main():
                 sys.stdout.write(f"{args}: not found\n")
                 
         else:
-            path = get_cmd_path(cmd)
+            args = shlex.split(command)
+            path = get_cmd_path(args[0])
             if path:
-                subprocess.run([cmd] + args.split())
+                subprocess.run(args)
             else:
                 sys.stdout.write(f"{command}: command not found\n")
         
