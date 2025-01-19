@@ -91,6 +91,7 @@ def main():
                 sys.stdout.write(f"{args}: not found\n")
                 
         else:
+            # Handle both single qtuoes and double quotes
             args = shlex.split(command)
             path = get_cmd_path(args[0])
             if path:
